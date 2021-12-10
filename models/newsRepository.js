@@ -8,7 +8,8 @@ module.exports =
     class NewsRepository extends Repository {
         constructor(req) {
             super('News', true);//****/
-            this.news = new Repository('News');
+            //this.news = new Repository('News');
+            this.users = new Repository('Users');
             this.req = req;
             this.setBindExtraDataMethod(this.bindUsernameAndImageURL);
         }
@@ -35,27 +36,31 @@ module.exports =
         // peuple le fichier .json
         add(nouvelle) {
             console.log("dans le add")
-            nouvelle["Created"] = utilities.nowInSeconds();
-            nouvelle["ImageGUID"] = ImageFilesRepository.storeImageData("", nouvelle["ImageData"]);
-            console.log("nouvelle testt", nouvelle)
-            delete nouvelle["ImageData"];
-            return super.add(nouvelle);
+            nouvelle["Date"] = utilities.nowInSeconds();
+            if (New.valid(nouvelle)){
+                nouvelle["GUID"] = ImageFilesRepository.storeImageData("", nouvelle["ImageData"]);
+                //console.log("nouvelle testt", nouvelle)
+                delete nouvelle["ImageData"];
+                console.log(nouvelle)
+                return super.add(nouvelle);
+            }
+            return null
         }
         update(nouvelle) {
-            nouvelle["Created"] = utilities.nowInSeconds();
-            let foundImage = super.get(image.Id);
-            if (foundImage != null) {
-                image["GUID"] = ImageFilesRepository.storeImageData(image["GUID"], image["ImageData"]);
-                delete image["ImageData"];
-                return super.update(image);
+            nouvelle["Date"] = utilities.nowInSeconds();
+            let foundNouvelle = super.get(nouvelle.Id);
+            if (foundNouvelle != null) {
+                foundNouvelle["GUID"] = ImageFilesRepository.storeImageData(nouvelle["GUID"], nouvelle["ImageData"]);
+                delete nouvelle["ImageData"];
+                return super.update(nouvelle);
             }
 
             return false;
         }
         remove(id) {
-            let foundImage = super.get(id);
-            if (foundImage) {
-                ImageFilesRepository.removeImageFile(foundImage["GUID"]);
+            let foundNouvelle = super.get(id);
+            if (foundNouvelle) {
+                ImageFilesRepository.removeImageFile(foundNouvelle["GUID"]);
                 return super.remove(id);
             }
             return false;

@@ -116,7 +116,7 @@ function webAPI_logout(userId, successCallBack, errorCallBack) {
 }
 function webAPI_HEAD(successCallBack, errorCallBack) {
     $.ajax({
-        url: apiBaseURL + "/api/images",
+        url: apiBaseURL + "/api/news",
         type: 'HEAD',
         contentType:'text/plain',
         complete: function(request) { 
@@ -130,7 +130,7 @@ function webAPI_HEAD(successCallBack, errorCallBack) {
 }
 function webAPI_GET_ALL(queryString, successCallBack, errorCallBack) {
     $.ajax({
-        url: apiBaseURL + "/api/images" + queryString,
+        url: apiBaseURL + "/api/news" + queryString,
         type: 'GET',
         contentType:'text/plain',
         data:{},
@@ -148,7 +148,7 @@ function webAPI_GET_ALL(queryString, successCallBack, errorCallBack) {
 }
 function webAPI_GET( id, successCallBack, errorCallBack) {
     $.ajax({
-        url: apiBaseURL + "/api/images" + "/" + id,//à remplacer par news
+        url: apiBaseURL + "/api/news" + "/" + id,//à remplacer par news
         type: 'GET',
         contentType:'text/plain',
         data:{},

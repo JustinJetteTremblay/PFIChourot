@@ -86,6 +86,7 @@ class Repository {
             this.write();
             return object;
         } catch(error) {
+            console.log(error)
             return null;
         }
     }

@@ -1,7 +1,9 @@
 <!--------------------------------------------------------------------------------------------------
-    PFI
+    Single Page Application
+    photoS MANAGER WEB CLIENT
 
-    Author: IOHANN PAQUETTE - JUSTIN JETTE-TREMBLAY
+    LAST UPDATE: november 2021
+    Author: Nicolas Chourot
     Lionel-Groulx College
 ----------------------------------------------------------------------------------------------------->
 <!DOCTYPE html>
@@ -71,7 +73,6 @@
                     <div id="btn_OpenProfilDialog" tooltip="Enregistrement" tooltip-position="left">
                         <img src="images/register.png" id="showRegister" class="icon">
                     </div>
-
                 </div>
             </div>
 
@@ -81,6 +82,9 @@
             <!---photoS LIST HEAD----------------------------------------------------------->
             <div class="header-container">
                 <div class="header-photos-container columns-layout">
+                    <div id="sort_Created" class="sortcmd">Date &nbsp;<span id="dir_Created"></span></div>
+                    <div id="sort_Title" class="sortcmd">Titre &nbsp;<span id="dir_Title"></span></div>
+                    <div id="sort_Username" class="sortcmd">Usager &nbsp;<span id="dir_Username"></span></div>
                     <div id="showSearch" tooltip="Barre de recherche" tooltip-position="left">
                         <span id="showSearchIcon" class="gicon glyphicon glyphicon-zoom-in"></span>
                     </div>
@@ -110,35 +114,24 @@
             </div>
         </div>
     </div>
-    
+
     <!---PHOTO DIALOG------------------------------------------------------------------------>
     <div id="dialog-photoForm" title="photo" class="dialog">
         <form id="photoForm" class="form-group">
-            <!-- date -->
-            <a>Partageé le </a>
-
-            <input type="hidden" id="newId" />
-            <input type="hidden" id="UserId" />
-
-            <input type="hidden" id="date" />
-
-            <!-- titre -->
-            <input type="text" id="title" placeholder="Titre" class="form-control" />
-
-            <!-- texte -->
-            <textarea id="texte" placeholder="Description" class="form-control">
-            </textarea>
-
+            <input type="hidden" id="photoId" />
+            <input type="hidden" id="photoUserId" />
+            <input type="hidden" id="photoGUID" />
+            <input type="hidden" id="photoCreated" />
+            <input type="text" id="photoTitle" placeholder="Titre" class="form-control" />
+            <input type="text" id="photoDescription" placeholder="Description" class="form-control" />
             <table>
                 <tr>
                     <td style="padding:4px;"><label for="photoShared">Partagée</label></td>
                     <td style="padding:4px;"><input type="checkbox" id="photoShared" name="photoShared" /></td>
                 </tr>
             </table>
-            
-            <!-- Image -->
             <div style="vertical-align:top; text-align: center ">
-                <div class='imageDownloader' id='ImageGUID' defautImageSrc='images/No_image.png'></div>
+                <div class='imageDownloader' id='photo' defautImageSrc='images/No_image.png'></div>
                 <label>(cliquez pour la changer l'image)</label>
             </div>
         </form>
@@ -241,7 +234,7 @@
             initphotosListColumnsLayout();
 
             updatePhotosSearch();
-            installPeriodicphotosListRefresh();
+            //installPeriodicphotosListRefresh();
         }
 
         function installPeriodicphotosListRefresh() {
@@ -250,7 +243,7 @@
             }, periodicRefreshPeriod * 1000);
         }
         function initphotosListColumnsLayout() {
-            createCssClass('.columns-layout', "display: grid; grid-template-columns: 50% 50% 50% 10% 10%;");
+            createCssClass('.columns-layout', "display: grid; grid-template-columns: 30% 30% 30% 5% 5%;");
         }
 
         function initphotoDialog() {
@@ -264,13 +257,13 @@
                         text: 'Soumettre',
                         click: function () {
 
-                            // Ajout d'une nouvelle
+                            // Ajout d'un photo
                             if (addMode) {
-                                let nouvelle = makephotoFromphotoForm(false);
+                                let photo = makephotoFromphotoForm(false);
                                 if (photoValidationProvider.isValid()) {
                                     $("#dialog-waiting").dialog('open');
                                     $("#dialog-photoForm").dialog("close");
-                                    webAPI_POST(nouvelle, () => { updateUI(); }, AlertError);
+                                    webAPI_POST(photo, () => { updateUI(); }, AlertError);
                                 }
                             } else {
                                 let photo = makephotoFromphotoForm(true);
@@ -328,16 +321,16 @@
                 editMode = true;
                 $('#dialog-photoForm').dialog('option', 'title', 'Modification de photo');
                 $("#dialog-photoForm").dialog('open');
-                let newId = e.currentTarget.id.split('_')[1];
-                webAPI_GET(newId, fillEditphotoForm, AlertError);
+                let photoId = e.currentTarget.id.split('_')[1];
+                webAPI_GET(photoId, fillEditphotoForm, AlertError);
             }
         }
         function fillEditphotoForm(photo) {
-            $('#newId').val(photo.Id);
+            $('#photoId').val(photo.Id);
             $('#photoUserId').val(photo.UserId);
             $('#photoGUID').val(photo.GUID);
             $('#photoTitle').val(photo.Title);
-            // $('#photoCreated').val(photo.Created);
+            $('#photoCreated').val(photo.Created);
             $('#photoDescription').val(photo.Description);
             $("#photoShared").prop("checked", photo.Shared);
             clearImageData('photo');
@@ -351,31 +344,52 @@
 
         function makephotoFromphotoForm(includeId = false) {
             if (includeId) {
+                // Récupération du Id du photo dans le contrôle caché
                 return {
-                    Id: parseInt($('#newId').val()),
-                    UserId: parseInt($('#photoUserId').val()),
-                    Date: new Date().getDate(), // pas sur si ca marche
+                    Id: parseInt($('#photoId').val()),
                     Titre: $('#photoTitle').val(),
-                    ImageGUID: $('#photoGUID').val(), // c'est le guid de la photo ajouter ou la photo du user ?
-                    Texte: $('#photoDescription').val()
-                }
+                    Texte: $('#photoDescription').val(),
+                    //Shared: $("#photoShared").prop("checked"),
+                    Date: $('#photoCreated').val(),
+                    GUID: $('#photoGUID').val(),
+                    UserId: parseInt($('#photoUserId').val()),
+                    ImageData: getImageData('photo')
+
+                    // Id: 0,
+                    // Title: $('#photoTitle').val(),
+                    // Description: $('#photoDescription').val(),
+                    // Shared: $("#photoShared").prop("checked"),
+                    // Created: $('#photoCreated').val(),
+                    // GUID: $('#photoGUID').val(),
+                    // UserId: parseInt($('#photoUserId').val()),
+                    // ImageData: getImageData('photo')
+                };
             }
-            //pour une nouvelle sans id
             return {
                 Id: 0,
-                UserId: parseInt($('#photoUserId').val()),
-                Date: new Date().getDate(), // pas sur si ca marche
                 Titre: $('#photoTitle').val(),
-                ImageGUID: $('#photoGUID').val(), // c'est le guid de la photo ajouter ou la photo du user ?
-                Texte: $('#photoDescription').val()
-            }
+                Texte: $('#photoDescription').val(),
+                //Shared: $("#photoShared").prop("checked"),
+                Date: $('#photoCreated').val(),
+                GUID: $('#photoGUID').val(),
+                UserId: parseInt($('#photoUserId').val()),
+                ImageData: getImageData('photo')
+                // Id: 0,
+                // Title: $('#photoTitle').val(),
+                // Description: $('#photoDescription').val(),
+                // Shared: $("#photoShared").prop("checked"),
+                // Created: $('#photoCreated').val(),
+                // GUID: $('#photoGUID').val(),
+                // UserId: parseInt($('#photoUserId').val()),
+                // ImageData: getImageData('photo')
+            };
         }
         function deletephoto(e) {
             e.preventDefault();
             if (!operationOnGoing()) {
                 // Extraction du Id du photo inscrit dans l'attribut id de l'élément déclencheur de l'événement click
-                let newId = parseInt(e.currentTarget.id.split('_')[1]);
-                webAPI_GET(newId, confirmDeletephoto, AlertError);
+                let photoId = parseInt(e.currentTarget.id.split('_')[1]);
+                webAPI_GET(photoId, confirmDeletephoto, AlertError);
             }
         }
         function confirmDeletephoto(photo) {
@@ -704,20 +718,12 @@
         function updateUI() {
             updateConnected();
             getphotos(true);
-            getNouvelles(true)
         }
         function getphotos(forceRefreshphotoList = false) {
             if (forceRefreshphotoList) {
                 webAPI_GET_ALL(queryString, updatephotoList, AlertError);
             } else
                 webAPI_HEAD(checkETag, AlertError);
-        }
-        function getNouvelles(forceRefreshnewsList = false) {
-            // if (forceRefreshnewsList) {
-            //     webAPI_GET_ALL(queryString, updatephotoList, AlertError);
-            // } else
-            //     webAPI_HEAD(checkETag, AlertError);
-            console.log("oui ajouté mon cul")
         }
         function checkETag(ETag) {
             if (ETag != currentETag) {
@@ -842,19 +848,19 @@
         function cellOver(e) {
             if (!addMode && !editMode) {
                 // currentTarget.className contient en principe : 'row_x cell ...'
-                let newId = e.currentTarget.className.split(' ')[0].split('_')[1];
-                $('#edit_' + newId).show();
-                $('#delete_' + newId).show();
-                $('.row_' + newId).addClass('selectedRow');
+                let photoId = e.currentTarget.className.split(' ')[0].split('_')[1];
+                $('#edit_' + photoId).show();
+                $('#delete_' + photoId).show();
+                $('.row_' + photoId).addClass('selectedRow');
             }
         }
         function cellBlur(e) {
             if (!editMode) {
                 // currentTarget.className contient en principe : 'row_x cell ...'
-                let newId = e.currentTarget.className.split(' ')[0].split('_')[1];
-                $('#edit_' + newId).hide();
-                $('#delete_' + newId).hide();
-                $('.row_' + newId).removeClass('selectedRow');
+                let photoId = e.currentTarget.className.split(' ')[0].split('_')[1];
+                $('#edit_' + photoId).hide();
+                $('#delete_' + photoId).hide();
+                $('.row_' + photoId).removeClass('selectedRow');
             }
         }
         function makeCell(content, cssClass) {
@@ -894,12 +900,13 @@
             let thumbnailHeader = $("<div class='thumbnailHeader ellipsis'></div>");
 
 
-            thumbnailHeader.append($("<br><span>" + photo.Title + "</span>"));
+            thumbnailHeader.append($("<br><span>" + photo.Titre + "</span>"));
             thumbnailHeader.append($("<br><span style='font-size:14px;color:green'>" + photo.Username + "</span>"));
             const options = { /*weekday: 'long', */year: 'numeric', month: 'long', day: 'numeric' };
             thumbnailHeader.append($("<br><span style='font-size:14px;color:lightblue'>" + new Date(photo.Created * 1000).toLocaleDateString('fr-FR', options) + "</span>"));
             thumbnailContainer.append(thumbnailHeader);
             let image = html_fittedImage(photo.ThumbnailURL, "thumbnail");
+            thumbnailHeader.append($("<br><span>" + photo.Texte + "</span>"));
             if (connected && photo.UserId == loggedUserId) {
                 // Bouton d'appel à la modification de la photo
                 image.append(makeButton("editphoto btncmd", "edit_" + photo.Id, "Modifier " + photo.Title).append(makeGlyphIcon('pencil')));
@@ -927,7 +934,6 @@
             }
             $("#dialog-waiting").dialog('close');
         }
-
     </script>
 </body>
 

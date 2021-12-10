@@ -5,9 +5,9 @@ const NewsRepository = require('../models/newsRepository')
 
 module.exports =
     class NewsController extends require('./Controller') {
-        constructor(req, res) {
-            super(req, res);
-            this.newrepository = new NewsRepository(this.req);
+        constructor(req, res,params) {
+            super(req, res,params,false);
+            this.newrepository = new NewsRepository(req);
         }
 
         head() {
@@ -22,21 +22,17 @@ module.exports =
                     console.log(this.newrepository.get(id))
                 }
                 else
-                    this.response.JSON(this.newrepository.getAll(),
-                        this.newrepository.ETag);
+                    this.response.JSON(this.newrepository.getAll(),this.newrepository.ETag);
             }
             else {
-                if (Object.keys(this.params).length === 0) /* ? only */ {
-                    this.queryStringHelp();
-                } else {
-                    this.response.JSON(this.newrepository.getAll(this.params), this.newrepository.ETag);
-                }
+                this.response.JSON(this.newrepository.getAll(this.params), this.newrepository.ETag);
             }
         }
         post(nouvelle) {
             console.log("post une nouvelle")
             if (this.requestActionAuthorized()) {
-                let newNouvelle = this.newrepository.add(nouvelle);
+                let newNouvelle = this.newrepository.add(nouvelle); // tt le temps null => newNouvelle
+                
                 if (newNouvelle)
                     this.response.created(newNouvelle);
                 else
