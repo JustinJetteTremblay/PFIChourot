@@ -96,6 +96,52 @@ function webAPI_getUserInfo(userId, successCallBack, errorCallBack) {
         }
     })
 }
+function webAPI_GET_ALL_USERS( successCallBack, errorCallBack) {
+    $.ajax({
+        url: apiBaseURL + "/Accounts",
+        type: 'GET',
+        contentType:'text/plain',
+        data:{},
+        success: function (profil) {
+            successCallBack(profil);
+        },
+        error: function(jqXHR) {  
+            errorCallBack(jqXHR.status);
+            console.log("webAPI_get_all_users - error");
+        }
+    })
+}
+function webAPI_GET_USER_AVATAR(userId,successCallBack, errorCallBack){
+    $.ajax({
+        url: apiBaseURL + "/Accounts/"+userId+"/AvatarGUID",
+        type: 'GET',
+        contentType:'text/plain',
+        data:{},
+        success: function (photo) {
+            successCallBack(photo);
+        },
+        error: function(jqXHR) {  
+            errorCallBack(jqXHR.status);
+            console.log("webAPI_GET_USER_AVATAR - error");
+        }
+    })
+}
+
+function webAPI_GET_USER_NEWS_BY_USERNAME(username,successCallBack, errorCallBack){
+    $.ajax({
+        url: apiBaseURL + "/api/news?Username="+username,
+        type: 'GET',
+        contentType:'text/plain',
+        data:{},
+        success: function (user) {
+            successCallBack(user);
+        },
+        error: function(jqXHR) {  
+            errorCallBack(jqXHR.status);
+            console.log("webAPI_GET_USER_NEWS_BY_USERNAME - error");
+        }
+    })
+}
 function webAPI_logout(userId, successCallBack, errorCallBack) {
     $.ajax({
         url: apiBaseURL + "/accounts/logout/" + userId,
@@ -159,10 +205,21 @@ function webAPI_GET( id, successCallBack, errorCallBack) {
         }
     });
 }
+function webAPI_GET_Username( Username, successCallBack, errorCallBack) {
+    $.ajax({
+        url: apiBaseURL + "/api/news" + "?=" + Username,
+        type: 'GET',
+        contentType:'text/plain',
+        data:{},
+        success: data  => { successCallBack(data);},
+        error: function(jqXHR) {
+            errorCallBack(jqXHR.status);
+            console.log("webAPI_GET - error");
+        }
+    });
+}
 
 function webAPI_POST( data , successCallBack, errorCallBack) {
-    console.log("dans le post")
-    console.log(data)
     $.ajax({
         url: apiBaseURL + "/api/news",
         type: 'POST',

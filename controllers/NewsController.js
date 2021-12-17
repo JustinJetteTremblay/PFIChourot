@@ -29,7 +29,6 @@ module.exports =
             }
         }
         post(nouvelle) {
-            console.log("post une nouvelle")
             if (this.requestActionAuthorized()) {
                 let newNouvelle = this.newrepository.add(nouvelle); // tt le temps null => newNouvelle
                 

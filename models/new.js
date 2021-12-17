@@ -14,10 +14,11 @@ class New{
     {
         this.Id = 0;
         this.UserId = user.Id !== undefined ? user.Id : 0;
-        this.Date = date !== undefined ? date : "";
+        this.Created = date !== undefined ? date : 0;
         this.Titre = titre !== undefined ? titre : "";
         this.GUID = GUID !== undefined ? GUID : "";
         this.Texte = texte !== undefined ? texte : "";
+        this.Shared = shared !== undefined ? shared : false;
     }
     
     static valid(instance) {
@@ -25,7 +26,7 @@ class New{
         let validator = new Validator();
         validator.addField('Id','integer');
         validator.addField('UserId', 'integer');
-        validator.addField('Date','integer');
+        validator.addField('Created','integer');
         validator.addField('Titre','string');
         validator.addField('Texte','string');
         return validator.test(instance);

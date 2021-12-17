@@ -6,5 +6,29 @@
         "Password": "123",
         "AvatarGUID": "92b43a60-43fb-11ec-8064-5deac1c83b94",
         "Created": 1601500396
+    },
+    {
+        "Id": 2,
+        "Name": "Iohann",
+        "Email": "ioh@gmail.com",
+        "Password": "ioio1212",
+        "AvatarGUID": "2772ee50-5e9e-11ec-aed5-63665eb52832",
+        "Created": 1639169192
+    },
+    {
+        "Id": 4,
+        "Name": "Justin",
+        "Email": "justin.jettetremblay@gmail.com",
+        "Password": "123",
+        "AvatarGUID": "56adfec0-5f62-11ec-9b54-b7f0758054e7",
+        "Created": 1639763650
+    },
+    {
+        "Id": 5,
+        "Name": "Louis",
+        "Email": "Louis123@gmail.com",
+        "Password": "123",
+        "AvatarGUID": "f0f49fc0-5f62-11ec-a20a-c5bb0bbd96b2",
+        "Created": 1639763909
     }
 ]

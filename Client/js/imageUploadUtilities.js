@@ -91,7 +91,7 @@ function preLoadImage(event) {
                 fReader.onloadend = () => {
                     UploadedImage.src = fReader.result;
                     ImageData.value = UploadedImage.src;//.split(',').pop();
-                    console.log(ImageData.value);
+                    //console.log(ImageData.value);
                 };
             }
         }

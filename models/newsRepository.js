@@ -36,7 +36,7 @@ module.exports =
         // peuple le fichier .json
         add(nouvelle) {
             console.log("dans le add")
-            nouvelle["Date"] = utilities.nowInSeconds();
+            nouvelle["Created"] = utilities.nowInSeconds();
             if (New.valid(nouvelle)){
                 nouvelle["GUID"] = ImageFilesRepository.storeImageData("", nouvelle["ImageData"]);
                 //console.log("nouvelle testt", nouvelle)

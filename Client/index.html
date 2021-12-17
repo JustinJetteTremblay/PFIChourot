@@ -15,7 +15,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gestionnaire de photos</title>
+    <title>Gestionnaire de nouvelles</title>
 
     <!---STYLES BUNDLE -------------------------------------------------------------------------->
     <link rel="stylesheet" href="css/jquery-ui.css">
@@ -38,11 +38,11 @@
     <!---Page backgroung image------------------------------------------------------------------>
     <style>
         body {
-            background: url(images/bg.png) no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover;
+            background-color: whitesmoke;
         }
     </style>
 </head>
@@ -54,11 +54,12 @@
         <div class="title-container">
             <div>
                 <h1>
-                    <img src="images/favicon.png" style="height: 60px; margin-right:8px;float:left;">
-                    Gestionnaire de photos
+                    <!-- <img src="images/favicon.png" style="height: 60px; margin-right:8px;float:left;"> -->
+                    Gestionnaire de nouvelles
                 </h1>
             </div>
-            <div class="user-management-container">
+
+            <div class="user-management-container" style="background-color:white;color:black">
                 <div style="margin-left:10px;margin-top:26px;text-align:left;">
                     <div id="avatarContainer"></div>
                     <h4 id="username">non connecté</h4>
@@ -75,41 +76,41 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="array-container">
             <!---photoS LIST HEAD----------------------------------------------------------->
             <div class="header-container">
                 <div class="header-photos-container columns-layout">
-                    <div id="sort_Created" class="sortcmd">Date &nbsp;<span id="dir_Created"></span></div>
-                    <div id="sort_Title" class="sortcmd">Titre &nbsp;<span id="dir_Title"></span></div>
-                    <div id="sort_Username" class="sortcmd">Usager &nbsp;<span id="dir_Username"></span></div>
-                    <div id="showSearch" tooltip="Barre de recherche" tooltip-position="left">
-                        <span id="showSearchIcon" class="gicon glyphicon glyphicon-zoom-in"></span>
-                    </div>
-                    <div id="btn_OpenAddphotoDialog" tooltip="Ajouter une photo" tooltip-position="left">
+                    <!-- <div id="sort_Created" class="sortcmd">Date &nbsp;<span id="dir_Created"></span></div>
+                    <div id="sort_Title" class="sortcmd">Titre &nbsp;<span id="dir_Title"></span></div> -->
+                    <table>
+                        <tr>
+                            <td>
+                                <div><input style="width: 100px;" type="search" placeholder="Titre..."
+                                        id="search_title"></div>
+                            </td>
+                            <td>
+                                <!-- <div><input type="search" placeholder="Usager..."></div> -->
+                                    <select type="search" name="users" id="search_user" >
+                                        <option></option>
+                                    </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <div id="sort_Username" class="sortcmd">Trie par usager &nbsp;<span id="dir_Username"></span></div>
+
+                    <div id="btn_OpenAddphotoDialog" tooltip="Ajouter une nouvelle" tooltip-position="left">
                         <span class="gicon glyphicon glyphicon-plus"></span>
                     </div>
                 </div>
             </div>
 
-            <!---SEARCH BAR--------------------------------------------------------------------->
-            <div class="searchBar columns-layout">
-                <div>
-                    <!--<input type="search" placeholder="Date..." id="search_created">-->
-                </div>
-                <div><input type="search" placeholder="Titre..." id="search_title"></div>
-
-                <div><input type="search" placeholder="Usager..." id="search_user"></div>
-                <div></div>
-                <div></div>
-            </div>
-
-            <!---photoS LIST----------------------------------------------------------------->
-            <div class="photo-list-scroll-containter">
-                <div class="photo-list-container" id="photoList">
-                    <!-- La liste de photos sera injectée ici par du JavaScript -->
+            <!--- photos LIST--->
+            <div class="photo-list-scroll-containter" style="justify-items: center;">
+                <div class="photo-list-container">
+                    <!-- La liste de nouvelles sera injectée ici par du JavaScript -->
+                    <table id="photoList" style="align-items: center;" class="container"></table>
                 </div>
             </div>
         </div>
@@ -122,8 +123,10 @@
             <input type="hidden" id="photoUserId" />
             <input type="hidden" id="photoGUID" />
             <input type="hidden" id="photoCreated" />
+
             <input type="text" id="photoTitle" placeholder="Titre" class="form-control" />
-            <input type="text" id="photoDescription" placeholder="Description" class="form-control" />
+            <textarea type="text" id="photoDescription" placeholder="Description" class="form-control"
+                maxlength="300"></textarea>
             <table>
                 <tr>
                     <td style="padding:4px;"><label for="photoShared">Partagée</label></td>
@@ -203,13 +206,47 @@
         let pausephotosListPeriodicRefresh = false;
         let periodicRefreshPeriod = 5; // seconds
 
+
+        function getUsers() {
+            webAPI_GET_ALL_USERS(fillDropdownListofUsers, AlertError)
+        }
+        function fillDropdownListofUsers(data) {
+            var select = document.getElementById("search_user")
+
+            var tous = document.createElement("option")
+            tous.value = "Tous"
+            tous.textContent = "Tous"
+            tous.id = "Tous"
+            select.appendChild(tous)
+
+            var mesNouvelles = document.createElement("option")
+            mesNouvelles.value = "Mes nouvelles"
+            mesNouvelles.textContent = "Mes nouvelles"
+            mesNouvelles.id = "mesNouvelles"
+            select.appendChild(mesNouvelles)
+
+            for (var i = 0; i < data.length; i++) {
+                var el = document.createElement("option")
+                el.id = "user"
+                el.value = data[i].Name
+                el.textContent = data[i].Name
+                select.appendChild(el)
+            }
+        }
         function initUI() {
+
+            // var div = document.getElementById("dropdownUsers")
+            // var s = document.createElement("select")
+            // s.id = "search_user"
+            // div.appendChild(s)
+
             initphotoValidation();
             initProfilValidation();
 
             initphotoDialog();
             initLoginDialog();
             initProfilDialog();
+            getUsers();
 
             $(".searchBar").hide();
             $('#btn_OpenAddphotoDialog').click(OpenAddphotoDialog);
@@ -234,7 +271,7 @@
             initphotosListColumnsLayout();
 
             updatePhotosSearch();
-            //installPeriodicphotosListRefresh();
+            // installPeriodicphotosListRefresh();
         }
 
         function installPeriodicphotosListRefresh() {
@@ -311,7 +348,7 @@
         function OpenAddphotoDialog() {
             if (!operationOnGoing()) {
                 addMode = true;
-                $('#dialog-photoForm').dialog('option', 'title', 'Ajout de photo');
+                $('#dialog-photoForm').dialog('option', 'title', "Ajout d'une nouvelle");///title ou titre
                 $("#dialog-photoForm").dialog('open');
             }
         }
@@ -319,24 +356,24 @@
             e.preventDefault();
             if (!operationOnGoing()) {
                 editMode = true;
-                $('#dialog-photoForm').dialog('option', 'title', 'Modification de photo');
+                $('#dialog-photoForm').dialog('option', 'title', "Modification d'une nouvelle");
                 $("#dialog-photoForm").dialog('open');
                 let photoId = e.currentTarget.id.split('_')[1];
                 webAPI_GET(photoId, fillEditphotoForm, AlertError);
             }
         }
-        function fillEditphotoForm(photo) {
-            $('#photoId').val(photo.Id);
-            $('#photoUserId').val(photo.UserId);
-            $('#photoGUID').val(photo.GUID);
-            $('#photoTitle').val(photo.Title);
-            $('#photoCreated').val(photo.Created);
-            $('#photoDescription').val(photo.Description);
-            $("#photoShared").prop("checked", photo.Shared);
+        function fillEditphotoForm(nouvelle) {
+            $('#photoId').val(nouvelle.Id);
+            $('#photoUserId').val(nouvelle.UserId);
+            $('#photoGUID').val(nouvelle.GUID);
+            $('#photoTitle').val(nouvelle.Titre);
+            $('#photoCreated').val(nouvelle.Date);
+            $('#photoDescription').val(nouvelle.Description);
+            $("#photoShared").prop("checked", nouvelle.Shared);
             clearImageData('photo');
             if (photo.OriginalURL != "")
                 /// Tres important si on veut que la photo soit affichée dans le dialogue
-                setImageDownloaderImage('photo', photo.OriginalURL);
+                setImageDownloaderImage('photo', nouvelle.OriginalURL);
             else
                 setImageDownloaderBlankImage('photo');
             //<div class='imageDownloader' id = 'photo' defautImageSrc='images/No_image.png'></div>
@@ -349,7 +386,7 @@
                     Id: parseInt($('#photoId').val()),
                     Titre: $('#photoTitle').val(),
                     Texte: $('#photoDescription').val(),
-                    //Shared: $("#photoShared").prop("checked"),
+                    Shared: $("#photoShared").prop("checked"),
                     Date: $('#photoCreated').val(),
                     GUID: $('#photoGUID').val(),
                     UserId: parseInt($('#photoUserId').val()),
@@ -369,7 +406,7 @@
                 Id: 0,
                 Titre: $('#photoTitle').val(),
                 Texte: $('#photoDescription').val(),
-                //Shared: $("#photoShared").prop("checked"),
+                Shared: $("#photoShared").prop("checked"),
                 Date: $('#photoCreated').val(),
                 GUID: $('#photoGUID').val(),
                 UserId: parseInt($('#photoUserId').val()),
@@ -394,8 +431,8 @@
         }
         function confirmDeletephoto(photo) {
             $.confirm({
-                title: 'Retrait de photos',
-                content: '<b>' + photo.Title + '</b>?',
+                title: 'Retrait de nouvelle',
+                content: '<b>' + photo.Titre + '</b>?',
                 buttons: {
                     confirmer: function () {
                         $("#dialog-waiting").dialog('open');
@@ -679,7 +716,6 @@
                 search += key + "=" + value + "*";
             }
         }
-
         function updatePhotosSearch() {
             queryString = "";
             let first = true;
@@ -698,12 +734,54 @@
                     $("#dir_" + sort.field).addClass('glyphicon glyphicon-sort-by-attributes-alt');
                 } else
                     $("#dir_" + sort.field).addClass('glyphicon glyphicon-sort-by-attributes');
+
                 sortIndex++;
             });
-
+            console.log("query string:", queryString)
             search = "";
-            addSearchKey("Title", $("#search_title").val());
+
+            var select = document.getElementById("search_user")
+
+            function afficherTouteLesNouvelles(news) {
+                updatephotoList(news)
+            }
+
+            function afficherTouteMesNouvelles(news) {
+                updatephotoList(news)
+            }
+            function afficherNouvellesUser(news) {
+                updatephotoList(news)
+            }
+            select.addEventListener("click", function (e) {
+                let target = e.target
+                var options = select.querySelectorAll("option");
+                var count = options.length;
+
+                if (target.value == "Tous") {
+                    console.log("affiche toute les nouvelles")
+                    webAPI_GET_ALL(queryString, afficherTouteLesNouvelles, AlertError);
+                }
+                else if (target.value == "Mes nouvelles") {
+                    console.log("affiche toute mes nouvelles")
+                    let username = retrieveLoggedUser().Name
+                    // addSearchKey("Username", userName)
+                    webAPI_GET_USER_NEWS_BY_USERNAME(username, afficherTouteMesNouvelles, AlertError)
+                }
+                else {
+                    let userName = target.value
+                    // addSearchKey("Username", userName)
+                    webAPI_GET_USER_NEWS_BY_USERNAME(target.value, afficherNouvellesUser, AlertError)
+                    console.log("affiche toute les nouvelles de")
+                    console.log(userName)
+                }
+
+            });
+
+
+            addSearchKey("Titre", $("#search_title").val());
             addSearchKey("Username", $("#search_user").val());
+
+            //addSearchKey("Date",$("#search_date").val());
 
             if (search != "") {
                 if (queryString != "")
@@ -714,7 +792,6 @@
             queryString += search;
             updateUI();
         }
-
         function updateUI() {
             updateConnected();
             getphotos(true);
@@ -739,7 +816,6 @@
             else
                 style.sheet.insertRule(name + "{" + rules + "}", 0);
         }
-
         function insertWaitingStatus() {
             $('#photoList').empty();
             $("#dialog-waiting").dialog('open');
@@ -894,29 +970,37 @@
             return $("<a href='" + url + "' target='_blank'></a>");
         }
         function thumbNail(photo, loggedUserId) {
+            //console.log(photo)
+            //const userinfo = webAPI_getUserInfo(photo.UserId, () => { updateUI(); }, AlertError)
+            let username = photo.Username
+            let description = photo.Texte
+            let created = photo.Created
+            let titre = photo.Titre
 
-            let thumbnailContainer = $("<div class='thumbnailContainer'></div>");
+            const options = { /*weekday: 'long', */year: 'numeric', month: 'long', day: 'numeric' };
+
+            let thumbnailContainer = $("<div class='thumbnailContainer' style='border:2px solid black;margin:5px'></div>");
             thumbnailContainer.attr("title", photo.Description);
             let thumbnailHeader = $("<div class='thumbnailHeader ellipsis'></div>");
 
+            thumbnailHeader.append($("<tr><td><span style='font-size:14px;color:green'>Publié par " + photo.Username + "</span>" +
+                "</td><td><span style='font-size:14px;color:lightblue'> | Publié le " + new Date(photo.Created * 1000).toLocaleDateString('fr-FR', options) + "</span></td></tr>"));
 
-            thumbnailHeader.append($("<br><span>" + photo.Titre + "</span>"));
-            thumbnailHeader.append($("<br><span style='font-size:14px;color:green'>" + photo.Username + "</span>"));
-            const options = { /*weekday: 'long', */year: 'numeric', month: 'long', day: 'numeric' };
-            thumbnailHeader.append($("<br><span style='font-size:14px;color:lightblue'>" + new Date(photo.Created * 1000).toLocaleDateString('fr-FR', options) + "</span>"));
             thumbnailContainer.append(thumbnailHeader);
+
             let image = html_fittedImage(photo.ThumbnailURL, "thumbnail");
-            thumbnailHeader.append($("<br><span>" + photo.Texte + "</span>"));
+            thumbnailHeader.append($("<td><h2>" + photo.Titre + "</h2></td>"));
             if (connected && photo.UserId == loggedUserId) {
                 // Bouton d'appel à la modification de la photo
-                image.append(makeButton("editphoto btncmd", "edit_" + photo.Id, "Modifier " + photo.Title).append(makeGlyphIcon('pencil')));
+                thumbnailContainer.append(makeButton("editphoto btncmd", "edit_" + photo.Id, "Modifier " + photo.Titre).append(makeGlyphIcon('pencil')));
                 // Bouton d'appel au retrait de photo
-                image.append(makeButton("deletephoto btncmd", "delete_" + photo.Id, "Effacer " + photo.Title).append(makeGlyphIcon('remove')));
+                thumbnailContainer.append(makeButton("deletephoto btncmd", "delete_" + photo.Id, "Effacer " + photo.Titre).append(makeGlyphIcon('remove')));
                 if (photo.Shared) {
                     image.append($("<img src='images/shared.png' class='sharedIndicator'>"));
                 }
             }
             thumbnailContainer.append(previewImageLink(photo.OriginalURL).append(image));
+            thumbnailContainer.append($("<td><p>" + photo.Texte + "</p></td>"));
             return thumbnailContainer;
         }
 
